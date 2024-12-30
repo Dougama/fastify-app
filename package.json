@@ -1,0 +1,26 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "repository": "https://github.com/Dougama/fastify-app.git",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn workspaces foreach --all run build",
+    "clean": "yarn workspaces foreach --all run clean",
+    "lint": "eslint . --ext .ts",
+    "start": "yarn workspace @app/api start",
+    "gcp-build": "yarn build"
+  },
+  "dependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^2.0.0",
+    "typescript": "^5.0.0"
+  },
+  "packageManager": "yarn@4.5.3",
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}

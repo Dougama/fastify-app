@@ -1,0 +1,17 @@
+{
+  "name": "@app/services",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rimraf build tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@app/utils": "*"
+  },
+  "exports": {
+    ".": "./build/index.js"
+  }
+}
