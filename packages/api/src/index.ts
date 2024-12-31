@@ -1,11 +1,9 @@
-import {createApp} from './app.js';
+import {app} from './app.js';
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
 const startServer = async () => {
-  const app = createApp();
-
   try {
     await app.listen({port: Number(PORT), host: HOST});
     app.log.info(`Server running at http://localhost:${PORT}`);

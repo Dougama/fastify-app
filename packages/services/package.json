@@ -9,9 +9,14 @@
     "clean": "rimraf build tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@app/utils": "*"
+    "@app/utils": "*",
+    "@google-cloud/storage": "^7.14.0"
   },
   "exports": {
-    ".": "./build/index.js"
+    ".": {
+      "import": "./build/index.js",
+      "require": "./build/index.js"
+    },
+    "./*": "./build/*"
   }
 }

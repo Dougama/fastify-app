@@ -9,6 +9,18 @@
     "clean": "rimraf build tsconfig.tsbuildinfo"
   },
   "exports": {
-    ".": "./build/index.js"
+    ".": {
+      "import": "./build/index.js",
+      "require": "./build/index.js"
+    },
+    "./*": "./build/*"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9"
   }
 }

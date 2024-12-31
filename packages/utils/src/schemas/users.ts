@@ -16,7 +16,6 @@ export const updateUserSchema = {
     properties: {
       name: {type: 'string', minLength: 3},
       email: {type: 'string', format: 'email'},
-      password: {type: 'string', minLength: 6},
     },
   },
 };
@@ -26,7 +25,7 @@ export const userParamsSchema = {
     type: 'object',
     required: ['id'],
     properties: {
-      id: {type: 'integer', minimum: 1},
+      id: {type: 'string', minimum: 1},
     },
   },
 };

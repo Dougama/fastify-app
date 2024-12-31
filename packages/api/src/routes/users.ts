@@ -1,32 +1,34 @@
 import {FastifyInstance} from 'fastify';
-import {UserController} from '../controllers/users_data.js';
 import {
   createUserSchema,
   updateUserSchema,
   userParamsSchema,
-} from '../schemas/users.js';
+} from '@app/utils/schemas/users.js';
+import {
+  createUser,
+  getUser,
+  getUsers,
+  updateUser,
+  deleteUser,
+} from '../controllers/users-data.js';
+import {authenticate} from '../middleware/auth.js';
+import {authorize} from '../middleware/role.js';
 
 export default async function usersRoutes(app: FastifyInstance) {
-  const controller = new UserController();
   app.post(
     '/',
-    {schema: createUserSchema},
-    controller.createUser.bind(controller)
+    {
+      preHandler: [authenticate, authorize(['admin'])],
+      schema: createUserSchema,
+    },
+    createUser
   );
-  app.get('/', {}, controller.getAllUsers.bind(controller));
+  app.get('/', {preHandler: [authenticate]}, getUsers);
   app.get(
     '/:id',
-    {schema: userParamsSchema},
-    controller.getUserById.bind(controller)
+    {preHandler: [authenticate], schema: userParamsSchema},
+    getUser
   );
-  app.put(
-    '/:id',
-    {schema: updateUserSchema},
-    controller.updateUser.bind(controller)
-  );
-  app.delete(
-    '/:id',
-    {schema: userParamsSchema},
-    controller.deleteUser.bind(controller)
-  );
+  app.put('/:id', {schema: updateUserSchema}, updateUser);
+  app.delete('/:id', {schema: userParamsSchema}, deleteUser);
 }

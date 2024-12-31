@@ -11,3 +11,4 @@ packages/*/build/
 !.yarn/versions/
 
 packages/*/tsconfig.tsbuildinfo
+.env

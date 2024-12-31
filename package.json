@@ -8,6 +8,7 @@
   "repository": "https://github.com/Dougama/fastify-app.git",
   "license": "MIT",
   "scripts": {
+    "dev": "yarn workspace @app/api dev",
     "build": "yarn workspaces foreach --all run build",
     "clean": "yarn workspaces foreach --all run clean",
     "lint": "eslint . --ext .ts",

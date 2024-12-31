@@ -1,0 +1,465 @@
+openapi: "3.0.0"
+info:
+  title: Fastify-app API Documentation
+  description: Technical Test Node.js Developer with TypeScript, Fastify, Prisma, and Monorepo
+  version: "1.0.0"
+
+servers:
+  - url: "https://fastify-app-614117709322.us-east1.run.app"
+    description: API server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        bio:
+          type: string
+        image:
+          type: string
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        authorId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UserResponse:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+
+    ProfileResponse:
+      allOf:
+        - $ref: "#/components/schemas/Profile"
+        - type: object
+
+    PostResponse:
+      allOf:
+        - $ref: "#/components/schemas/Post"
+        - type: object
+
+paths:
+  /auth:
+    post:
+      tags:
+        - auth
+      summary: Login
+      description: Login and get JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: two@hotmail.com
+                password:
+                  type: string
+                  example: 123456
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /users:
+    get:
+      tags:
+        - users
+      summary: Obtener usuarios
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponse"
+
+    post:
+      tags:
+        - users
+      summary: Crear usuario
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, admin]
+      responses:
+        "201":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+
+  /users/{id}:
+    get:
+      tags:
+        - users
+      summary: Get user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+
+    put:
+      tags:
+        - users
+      summary: Update user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, admin]
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+
+    delete:
+      tags:
+        - users
+      summary: Delete user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: User deleted
+
+  /profiles:
+    post:
+      tags:
+        - profiles
+      summary: Crear perfil
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                bio:
+                  type: string
+                image:
+                  type: string
+      responses:
+        "201":
+          description: Perfil creado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+
+    get:
+      tags:
+        - profiles
+      summary: Get all profiles
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProfileResponse"
+
+  /profiles/{id}:
+    get:
+      tags:
+        - profiles
+      summary: Get profile by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profile details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+
+    put:
+      tags:
+        - profiles
+      summary: Update profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+                image:
+                  type: string
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+
+    delete:
+      tags:
+        - profiles
+      summary: Delete profile
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Profile deleted
+
+  /posts:
+    get:
+      tags:
+        - posts
+      summary: Obtener publicaciones
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de publicaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostResponse"
+
+    post:
+      tags:
+        - posts
+      summary: Create post
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                authorId:
+                  type: string
+      responses:
+        "201":
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+
+  /posts/{id}:
+    get:
+      tags:
+        - posts
+      summary: Get post by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Post details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+
+    put:
+      tags:
+        - posts
+      summary: Update post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        "200":
+          description: Post updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponse"
+
+    delete:
+      tags:
+        - posts
+      summary: Delete post
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Post deleted
+
+  /ping:
+    get:
+      tags:
+        - health
+      summary: Health check
+      description: Verificar estado del servicio
+      responses:
+        "200":
+          description: Servicio funcionando
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong---

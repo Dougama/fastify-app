@@ -1,28 +1,29 @@
+import {User} from '@prisma/client';
+import {getPrisma} from '../db.js';
+
+const prisma = getPrisma();
 export class UserModel {
-  private users = new Map<string, any>();
-
-  async create(userData: any) {
-    const user = { ...userData };
-    this.users.set('', user); // revisar como se gestiona esto con el orm
-    return user;
+  public async getAll(): Promise<User[]> {
+    return prisma.user.findMany();
   }
 
-  async findById(id: string) {
-    return this.users.get(id) || null;
+  public async getById(id: string): Promise<User | null> {
+    return prisma.user.findUnique({where: {id}});
   }
 
-  async findAll() {
-    return Array.from(this.users.values());
+  public async create(data: {[key: string]: any}): Promise<User> {
+    return prisma.user.create({data} as any);
   }
 
-  async update(id: string, userData: any) {
-    if (!this.users.has(id)) return null;
-    const updatedUser = { ...this.users.get(id), ...userData };
-    this.users.set(id, updatedUser);
-    return updatedUser;
+  public async update(id: string, data: Partial<User>): Promise<User> {
+    return prisma.user.update({where: {id}, data});
   }
 
-  async delete(id: string) {
-    return this.users.delete(id);
+  public async delete(id: string): Promise<void> {
+    await prisma.user.delete({where: {id}});
+  }
+
+  public async getByCredentials(email: string): Promise<User | null> {
+    return prisma.user.findUnique({where: {email}});
   }
 }

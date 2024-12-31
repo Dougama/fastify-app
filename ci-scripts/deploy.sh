@@ -3,7 +3,7 @@ PROJECT="backend-developer-446300"
 PROJECT_ID=$(gcloud config get-value core/project)
 if [ "$PROJECT_ID" != "$PROJECT" ]
 then
-  echo "El proyecto GCP $PROJECT_ID no está en los esperados"
+  echo "$PROJECT_ID mismatch"
   exit 1
 fi
 
@@ -16,4 +16,6 @@ gcloud run deploy fastify-app \
   --source=. \
   --min-instances=$MIN_INSTANCES \
   --max-instances=$MAX_INSTANCES \
-  --set-env-vars "TZ=America/Bogota" 
+  --set-env-vars "TZ=America/Bogota" \
+  --memory 1Gi \
+  --set-secrets "DATABASE_URL=DATABASE_URL:latest"
