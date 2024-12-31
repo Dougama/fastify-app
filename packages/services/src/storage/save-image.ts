@@ -3,16 +3,14 @@ import {getStorageClient} from './client';
 
 export const publicImageUrl = async (base64Image: string, userId: string) => {
   if (!base64Image) {
-    logger.warn(
-      'Se intentó guardar una foto sin proporcionar una imagen base64'
-    );
+    logger.warn('Attempted to save a photo without providing a base64 image');
     return null;
   }
 
   const matches = base64Image.match(/^data:image\/([A-Za-z-+/]+);base64,(.+)$/);
 
   if (!matches || matches.length !== 3) {
-    logger.warn('Se proporcionó una imagen base64 con formato inválido');
+    logger.warn('Invalid base64 image format provided');
     return null;
   }
 
