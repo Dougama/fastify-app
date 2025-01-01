@@ -3,7 +3,7 @@ TypeScript, Fastify, Prisma, and Monorepo
 
 # Cloud Run Deployment Script and local setup
 
-I chose **Google Cloud Run** because it provides a scalable and cost-effective way to deploy containerized applications. It automatically handles scaling based on traffic, requiring no manual intervention for server management. The serverless nature of Cloud Run ensures that resources are used efficiently, especially with the `MIN_INSTANCES=0` setting, which avoids charges when the application is idle. Additionally, integrating **GCP Secrets Manager** for sensitive data like the database URL enhances security while keeping the configuration flexible and manageable.
+ **Google Cloud Run**  provides a scalable and cost-effective way to deploy containerized applications. It automatically handles scaling based on traffic, requiring no manual intervention for server management. The serverless nature of Cloud Run ensures that resources are used efficiently, especially with the `MIN_INSTANCES=0` setting, which avoids charges when the application is idle. Additionally, integrating **GCP Secrets Manager** for sensitive data like the database URL enhances security while keeping the configuration flexible and manageable.
 
 This script is used to deploy the **Fastify** application to **Google Cloud Run**, a fully managed serverless platform that allows you to run containerized applications. The script performs the following tasks:
 
