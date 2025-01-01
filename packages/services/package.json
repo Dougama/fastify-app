@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@app/utils": "*",
-    "@google-cloud/storage": "^7.14.0"
+    "@google-cloud/pubsub": "^4.9.0",
+    "@google-cloud/storage": "^7.14.0",
+    "@prisma/client": "^6.1.0"
   },
   "exports": {
     ".": {

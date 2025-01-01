@@ -29,6 +29,14 @@ export default async function usersRoutes(app: FastifyInstance) {
     {preHandler: [authenticate], schema: userParamsSchema},
     getUser
   );
-  app.put('/:id', {schema: updateUserSchema}, updateUser);
-  app.delete('/:id', {schema: userParamsSchema}, deleteUser);
+  app.put(
+    '/:id',
+    {preHandler: [authenticate], schema: updateUserSchema},
+    updateUser
+  );
+  app.delete(
+    '/:id',
+    {preHandler: [authenticate], schema: userParamsSchema},
+    deleteUser
+  );
 }

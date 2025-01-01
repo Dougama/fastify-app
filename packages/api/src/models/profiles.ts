@@ -1,29 +1,23 @@
 import { Profile } from '@prisma/client';
-import { getPrisma } from '../db.js';
 import { RequestBodyDefault } from 'fastify';
-
-const prisma = getPrisma();
+import { IProfileRepository } from '../repositories/interfaces.js';
 
 export class ProfileModel {
+  constructor(private repository: IProfileRepository) {}
+
   public async create(data: RequestBodyDefault): Promise<Profile> {
-    return prisma.profile.create({ data } as any);
+    return this.repository.create(data);
   }
 
   public async update(id: string, data: any): Promise<Profile> {
-    return prisma.profile.update({
-      where: { id },
-      data
-    });
+    return this.repository.update(id, data);
   }
 
   public async delete(id: string): Promise<void> {
-    await prisma.profile.delete({ where: { id } });
+    await this.repository.delete(id);
   }
 
   public async getProfileByUserId(userId: string): Promise<Profile | null> {
-    return prisma.profile.findUnique({
-      where: { userId },
-      include: { user: true }
-    });
+    return this.repository.findByUserId(userId);
   }
 } 

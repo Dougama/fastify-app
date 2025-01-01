@@ -7,11 +7,13 @@
   "license": "MIT",
   "scripts": {
     "build": "npx prisma generate && tsc --build",
-    "dev": "yarn build && node --enable-source-maps build/index.js",
+    "dev": "yarn build && NODE_ENV=staging node --enable-source-maps build/index.js",
     "clean": "rimraf build tsconfig.tsbuildinfo",
     "start": "npx prisma migrate deploy && node --enable-source-maps build/index.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@app/services": "workspace:*",
@@ -22,10 +24,15 @@
     "@prisma/client": "^6.1.0",
     "fastify": "^5.2.0",
     "fastify-plugin": "^5.0.1",
+    "jest-mock": "^29.7.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
-    "prisma": "^6.1.0"
+    "jest": "^29.7.0",
+    "prisma": "^6.1.0",
+    "ts-jest": "^29.0.0"
   }
 }

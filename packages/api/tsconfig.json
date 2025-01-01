@@ -8,7 +8,8 @@
   },
   "include": [
     "src",
-    "../utils/src/schemas"
+    "../utils/src/schemas",
+    "src/services/db.ts"
   ],
   "references": [
     {

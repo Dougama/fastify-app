@@ -1,29 +1,30 @@
-import {User} from '@prisma/client';
-import {getPrisma} from '../db.js';
+import { User } from '@prisma/client'
+import { IUserRepository } from '../repositories/interfaces.js'
 
-const prisma = getPrisma();
 export class UserModel {
+  constructor(private repository: IUserRepository) {}
+
   public async getAll(): Promise<User[]> {
-    return prisma.user.findMany();
+    return this.repository.findAll()
   }
 
   public async getById(id: string): Promise<User | null> {
-    return prisma.user.findUnique({where: {id}});
+    return this.repository.findById(id)
   }
 
   public async create(data: {[key: string]: any}): Promise<User> {
-    return prisma.user.create({data} as any);
+    return this.repository.create(data)
   }
 
   public async update(id: string, data: Partial<User>): Promise<User> {
-    return prisma.user.update({where: {id}, data});
+    return this.repository.update(id, data)
   }
 
   public async delete(id: string): Promise<void> {
-    await prisma.user.delete({where: {id}});
+    await this.repository.delete(id)
   }
 
   public async getByCredentials(email: string): Promise<User | null> {
-    return prisma.user.findUnique({where: {email}});
+    return this.repository.findByEmail(email)
   }
 }

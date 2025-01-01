@@ -1,18 +1,17 @@
-import {
-  FastifyReply,
-  FastifyRequest,
-} from 'fastify';
-import {ProfileModel} from '../models/profiles.js';
-import {publicImageUrl} from '@app/services/storage/save-image.js';
-import {logger} from '@app/utils/logger.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { ProfileService } from '../services/profile.js';
+import { IProfileRepository } from '../repositories/interfaces.js';
+import { PrismaProfileRepository } from '../repositories/prisma/profile.repository.js';
+import { NotificationService } from '../services/notifications.js';
+import { getPubSubClient } from '@app/services/pubsub/client.js';
 
-const profileModel = new ProfileModel();
+const profileRepository = new PrismaProfileRepository();
+const profileService = new ProfileService(profileRepository);
 
 export const createProfile = async (req: FastifyRequest, reply: FastifyReply) => {
-  const body = req.body as Record<string, any>;
   try {
-    const profile = await profileModel.create(body);
-    reply.status(201).send({created: true, id: profile.id});
+    const result = await profileService.createProfile(req.body as Record<string, any>);
+    reply.status(201).send(result);
   } catch (error) {
     req.log.error({error});
     reply.status(500).send({error: 'Error creating profile'});
@@ -20,11 +19,12 @@ export const createProfile = async (req: FastifyRequest, reply: FastifyReply) =>
 };
 
 export const updateProfile = async (req: FastifyRequest, reply: FastifyReply) => {
-  const params = req.params as Record<string, any>;
-  const body = req.body as Record<string, any>;
   try {
-    await profileModel.update(params.id, body);
-    reply.send({updated: true});
+    const params = req.params as Record<string, any>;
+    const result = await profileService.updateProfile(params.id, req.body as Record<string, any>);
+    const notificationService = new NotificationService(getPubSubClient());
+    await notificationService.sendNotificationProfileUpdated(JSON.stringify(result));
+    reply.send(result);
   } catch (error) {
     req.log.error({error});
     reply.status(500).send({error: 'Error updating profile'});
@@ -32,9 +32,9 @@ export const updateProfile = async (req: FastifyRequest, reply: FastifyReply) =>
 };
 
 export const deleteProfile = async (req: FastifyRequest, reply: FastifyReply) => {
-  const params = req.params as Record<string, any>;
   try {
-    await profileModel.delete(params.id);
+    const params = req.params as Record<string, any>;
+    await profileService.deleteProfile(params.id);
     reply.status(204).send();
   } catch (error) {
     req.log.error({error});
@@ -43,9 +43,9 @@ export const deleteProfile = async (req: FastifyRequest, reply: FastifyReply) =>
 };
 
 export const getProfileByUserId = async (req: FastifyRequest, reply: FastifyReply) => {
-  const params = req.params as Record<string, any>;
   try {
-    const profile = await profileModel.getProfileByUserId(params.userId);
+    const params = req.params as Record<string, any>;
+    const profile = await profileService.getProfileByUserId(params.userId);
     if (!profile) {
       reply.status(404).send({error: 'Profile not found'});
     } else {
@@ -58,18 +58,13 @@ export const getProfileByUserId = async (req: FastifyRequest, reply: FastifyRepl
 };
 
 export const createProfilePhoto = async (req: FastifyRequest, reply: FastifyReply) => {
-  const params = req.params as Record<string, any>;
-  const body = req.body as Record<string, any>;
-  const url = await publicImageUrl(body.image, params.userId);
-  if (!url) {
-    logger.error('Error saving image');
-    return reply.status(400).send({error: 'Error saving image'});
+  try {
+    const params = req.params as Record<string, any>;
+    const result = await profileService.createProfilePhoto(params.userId, req.body as Record<string, any>);
+    reply.send(result);
+  } catch (error) {
+    req.log.error({error});
+    const message = error instanceof Error ? error.message : 'Error creating profile photo';
+    reply.status(400).send({error: message});
   }
-  const existingProfile = await profileModel.getProfileByUserId(params.userId);
-  if (existingProfile) {
-    await profileModel.update(existingProfile.id, {image: url});
-  } else {
-    await profileModel.create({userId: params.userId, image: url, bio: ''});
-  }
-  return reply.send({url});
 };

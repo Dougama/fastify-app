@@ -1,30 +1,29 @@
-import {FastifyReply, FastifyRequest, RequestBodyDefault} from 'fastify';
-import {UserModel} from '../models/users.js';
-import { hashPassword } from '@app/utils/basic_auth/hash_pass.js';
+import {FastifyReply, FastifyRequest} from 'fastify';
+import {UserService} from '../services/users.js';
+import {PrismaUserRepository} from '../repositories/prisma/user.repository.js';
+import {NotificationService} from '../services/notifications.js';
+import {getPubSubClient} from '@app/services/pubsub/client.js';
 
-const userModel = new UserModel();
+const userRepository = new PrismaUserRepository();
+const userService = new UserService(userRepository);
 
 export const getUsers = async (_req: FastifyRequest, reply: FastifyReply) => {
   try {
-    const users = (await userModel.getAll()).map(({password, ...user}) => user);
+    const users = await userService.getAllUsers();
     reply.send(users);
   } catch (error) {
     reply.status(500).send({error: 'Error fetching users'});
   }
 };
 
-export const getUser = async (
-  req: FastifyRequest,
-  reply: FastifyReply
-) => {
+export const getUser = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
-    const params = req.params as {[key: string]: string}
-    const user = await userModel.getById(params.id);
+    const params = req.params as {[key: string]: string};
+    const user = await userService.getUserById(params.id);
     if (!user) {
       reply.status(404).send({error: 'User not found'});
     } else {
-      const {password, ...userWithoutPassword} = user;
-      reply.send(userWithoutPassword);
+      reply.send(user);
     }
   } catch (error) {
     req.log.error({error});
@@ -32,32 +31,28 @@ export const getUser = async (
   }
 };
 
-export const createUser = async (
-  req: FastifyRequest,
-  reply: FastifyReply
-) => {
+export const createUser = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
-    const data = req.body as {[key: string]: any};
-    data.password = hashPassword(data.password);
-    const user = await userModel.create(req.body as any);
-    const {password, ...userWithoutPassword} = user;
-    reply.status(201).send({created: true, ...userWithoutPassword});
+    const user = await userService.createUser(req.body as any);
+    const notificationService = new NotificationService(getPubSubClient());
+    await notificationService.sendNotificationUserCreated(JSON.stringify(user));
+    reply.status(201).send({created: true, ...user});
   } catch (error) {
-    console.log(error);
     req.log.error({error});
     reply.status(500).send({error: 'Error creating user'});
   }
 };
 
 export const updateUser = async (
-  req: FastifyRequest<{
-    Params: {id: string};
-    Body: {name?: string; email?: string};
-  }>,
+  req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const user = await userModel.update(req.params.id, req.body);
+    const params = req.params as {[key: string]: string};
+    const body = req.body as {[key: string]: string};
+    await userService.updateUser(params.id, body);
+    const notificationService = new NotificationService(getPubSubClient());
+    await notificationService.sendNotificationUserUpdated(JSON.stringify(body));
     reply.send({updated: true});
   } catch (error) {
     req.log.error({error});
@@ -66,11 +61,12 @@ export const updateUser = async (
 };
 
 export const deleteUser = async (
-  req: FastifyRequest<{Params: {id: string}}>,
+  req: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    await userModel.delete(req.params.id);
+    const params = req.params as {[key: string]: string};
+    await userService.deleteUser(params.id);
     reply.status(204).send();
   } catch (error) {
     req.log.error({error});
